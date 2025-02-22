@@ -1,22 +1,18 @@
 import React from "react";
 import { Navigation } from "../components/nav";
-import data from "../../data.json";
+import data from "../../data.json"; // Supondo que você ainda queira usar dados locais
 import Image from "next/image";
 import Link from "next/link";
 import { Card } from "../components/card";
 
-// Usando getServerSideProps para acessar os parâmetros de consulta
-export async function getServerSideProps(context) {
-    const { customUsername } = context.query; // Acessando customUsername dos parâmetros de consulta
+// Componente que acessa os parâmetros de consulta diretamente
+export default async function CertificatesPage({ searchParams }) {
+    const { customUsername } = searchParams;
 
-    return {
-        props: {
-            customUsername, // Passando customUsername como prop para o componente
-        },
-    };
-}
+    // Se você precisar buscar dados de uma API, você pode usar fetch aqui
+    // const response = await fetch('sua-api-url');
+    // const apiData = await response.json();
 
-export default function CertificatesPage({ customUsername }) {
     return (
         <div className="relative pb-16">
             <Navigation customUsername={customUsername} />
