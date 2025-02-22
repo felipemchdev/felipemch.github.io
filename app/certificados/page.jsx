@@ -5,15 +5,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card } from "../components/card";
 
-// Modifique para usar getServerSideProps em vez de um componente assíncrono
+// Usando getServerSideProps para acessar os parâmetros de consulta
 export async function getServerSideProps(context) {
-    // Aqui você pode acessar os parâmetros da URL diretamente
-    const { customUsername } = context.query;
+    const { customUsername } = context.query; // Acessando customUsername dos parâmetros de consulta
 
-    // Retorne como props para o componente
     return {
         props: {
-            customUsername,
+            customUsername, // Passando customUsername como prop para o componente
         },
     };
 }
