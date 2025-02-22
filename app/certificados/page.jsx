@@ -1,16 +1,23 @@
 import React from "react";
+import { useRouter } from "next/router"; // Importando useRouter
 import { Navigation } from "../components/nav";
-import data from "../../data.json"; // Dados locais ou de uma API
+import data from "../../data.json"; // Supondo que você ainda queira usar dados locais
 import Image from "next/image";
 import Link from "next/link";
 import { Card } from "../components/card";
 
-export default async function CertificatesPage({ searchParams }) {
-    const { customUsername } = searchParams;
+export default function CertificatesPage() {
+    const router = useRouter();
+    const { customUsername } = router.query; // Acessando customUsername dos parâmetros de consulta
 
-    // Exemplo de busca de dados de uma API
-    // const response = await fetch('sua-api-url');
-    // const apiData = await response.json();
+    // Função para atualizar customUsername
+    const updateCustomUsername = (newUsername) => {
+        const updatedQuery = { ...router.query, customUsername: newUsername };
+        router.push({
+            pathname: router.pathname,
+            query: updatedQuery,
+        });
+    };
 
     return (
         <div className="relative pb-16">
@@ -54,6 +61,11 @@ export default async function CertificatesPage({ searchParams }) {
                         </Card>
                     ))}
                 </div>
+
+                {/* Exemplo de botão para mudar o customUsername */}
+                <button onClick={() => updateCustomUsername('novoUsername')}>
+                    Mudar Username
+                </button>
             </div>
         </div>
     );
