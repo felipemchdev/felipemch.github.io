@@ -5,47 +5,28 @@ import Link from "next/link";
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from "react";
 
+const navigation = [
+	{ name: "Projetos", href: "/projetos" },
+	{ name: "Contato", href: "/contato" },
+];
+
 export const Navigation = () => {
-	const ref = useRef(null);
-	const [isIntersecting, setIntersecting] = useState(true);
 	const searchParams = useSearchParams();
 	const customUsername = searchParams.get('customUsername');
 
-	useEffect(() => {
-		if (!ref.current) return;
-		const observer = new IntersectionObserver(([entry]) =>
-			setIntersecting(entry.isIntersecting),
-		);
-
-		observer.observe(ref.current);
-		return () => observer.disconnect();
-	}, []);
-
 	return (
-		<header ref={ref}>
-			<div
-				className={`fixed inset-x-0 top-0 z-50 backdrop-blur duration-200 border-b ${
-					isIntersecting
-						? "bg-zinc-900/0 border-transparent"
-						: "bg-zinc-900/500 border-zinc-800"
-				}`}
-			>
-				<div className="container flex flex-row-reverse items-center justify-between p-6 mx-auto">
-					<div className="flex justify-between gap-8 text-base">
-						<Link
-							href={"/projetos" + (customUsername ? `?customUsername=${customUsername}` : '')}
-							className="duration-200 text-zinc-400 hover:text-zinc-100"
-						>
-							Projetos
-						</Link>
-						<Link
-							href={"/contato" + (customUsername ? `?customUsername=${customUsername}` : '')}
-							className="duration-200 text-zinc-400 hover:text-zinc-100"
-						>
-							Contato
-						</Link>
-					</div>
-				</div>
-		</header>
+		<nav className="my-16 animate-fade-in">
+			<ul className="flex items-center justify-center gap-4">
+				{navigation.map((item) => (
+					<Link
+						key={item.href}
+						href={item.href + (customUsername ? `?customUsername=${customUsername}` : '')}
+						className="text-lg duration-500 text-zinc-500 hover:text-zinc-300"
+					>
+						{item.name}
+					</Link>
+				))}
+			</ul>
+		</nav>
 	);
 };

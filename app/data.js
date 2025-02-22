@@ -88,25 +88,16 @@ export const getUserOrganizations = unstable_cache(async (username) => {
     return orgs;
 }, ['getUserOrganizations'], { revalidate: HOURS_12 });
 
-export const getVercelProjects = async () => {
-    if (!process.env.VC_TOKEN) {
-        console.log('No Vercel token found - no projects will be shown.');
-        return { projects: [] };
-    }
+export const getVercelProjects = unstable_cache(async () => {
     console.log('Fetching Vercel projects');
     console.time('getVercelProjects');
-    const res = await fetch('https://api.vercel.com/v9/projects', {
+    const res = await fetch('https://api.vercel.com/v9/projects?limit=100', {
         headers: { Authorization: `Bearer ${process.env.VC_TOKEN}` },
         next: { revalidate: HOURS_12 }
     });
     console.timeEnd('getVercelProjects');
-    // eg. expired token.
-    if (!res.ok) {
-        console.error('Vercel API returned an error.', res.status, res.statusText);
-        return { projects: [] };
-    }
     return res.json();
-};
+});
 
 /** Cache revalidated every 12 hours. */
 export const getNextjsLatestRelease = unstable_cache(async () => {
@@ -121,24 +112,18 @@ export const getNextjsLatestRelease = unstable_cache(async () => {
                 repository(name: "next.js", owner: "vercel") {
                     latestRelease {
                         tagName
-                        updatedAt
                     }
                 }
             }`
         }),
+        next: { revalidate: HOURS_12 },
     });
     if (!res.ok) {
         console.error('GitHub API returned an error.', res.status, res.statusText);
-        return {};
+        return [];
     }
-    const nextjsLatest = await res.json();
-
-    const result = {
-        tagName: nextjsLatest.data.repository.latestRelease.tagName.replace('v', ''),
-        updatedAt: nextjsLatest.data.repository.latestRelease.updatedAt,
-    }
-    return result;
-}, ['getNextjsLatestRelease'], { revalidate: HOURS_1 });
+    return res.json();
+});
 
 export const getRepositoryPackageJson = unstable_cache(async (username, reponame) => {
     const res = await fetch('https://api.github.com/graphql', {
@@ -158,18 +143,16 @@ export const getRepositoryPackageJson = unstable_cache(async (username, reponame
                 }
             }`
         }),
+        next: { revalidate: HOURS_12 },
     });
-    const response = await res.json();
-    try {
-        const packageJson = JSON.parse(response.data.repository.object.text);
-        return packageJson;
-    } catch (error) {
-        console.error('Error parsing package.json', username, reponame, error);
-        return null;
+    if (!res.ok) {
+        console.error('GitHub API returned an error.', res.status, res.statusText);
+        return [];
     }
-}, ['getRepositoryPackageJson'], { revalidate: HOURS_1 });
+    return res.json();
+});
 
-export const getRecentUserActivity = async (username) => {
+export async function getRecentUserActivity(username) {
     console.log('Fetching recent activity for', username);
     console.time('getRecentUserActivity');
     const res = await fetch('https://api.github.com/users/' + username + '/events?per_page=100', {
@@ -177,9 +160,8 @@ export const getRecentUserActivity = async (username) => {
         next: { revalidate: MINUTES_5 }
     });
     const response = await res.json();
-    // Check pagination
+    let page = 2;
     if (res.headers.get('link')) {
-        let page = 2;
         let nextLink = res.headers.get('link').split(',').find((link) => link.includes('rel="next"'));
         while (nextLink) {
             const nextRes = await fetch('https://api.github.com/users/' + username + '/events?per_page=100&page=' + page, {
@@ -187,19 +169,17 @@ export const getRecentUserActivity = async (username) => {
                 next: { revalidate: MINUTES_5 }
             });
             const nextResponse = await nextRes.json();
+            if (nextResponse.message === 'Not Found') {
+                break;
+            }
             response.push(...nextResponse);
-            nextLink = nextRes.headers.get('link').split(',').find((link) => link.includes('rel="next"'));
             page++;
-        };
-    }
-
-    if (!res.ok) {
-        console.error('GitHub API /users returned an error.', res.status, res.statusText, response);
-        return [];
+            nextLink = nextRes.headers.get('link')?.split(',')?.find((link) => link.includes('rel="next"'));
+        }
     }
     console.timeEnd('getRecentUserActivity');
     return response;
-};
+}
 
 export const getTrafficPageViews = async (username, reponame) => {
     const res = await fetch('https://api.github.com/repos/' + username + '/' + reponame + '/traffic/views', {
@@ -207,15 +187,7 @@ export const getTrafficPageViews = async (username, reponame) => {
         next: { revalidate: HOURS_1 }
     });
     const response = await res.json();
-
-    const sumUniques = response.uniques || 0;
-
-    // Today date in format YYYY-MM-DD.
-    const today = new Date().toISOString().slice(0, 10);
-    // Last day with at least one view.
-    const todayUniques = response.views?.find((day) => day.timestamp.startsWith(today))?.uniques || 0;
-
-    return { sumUniques, todayUniques };
+    return response;
 };
 
 export const getDependabotAlerts = unstable_cache(async (username, reponame) => {
@@ -224,38 +196,17 @@ export const getDependabotAlerts = unstable_cache(async (username, reponame) => 
         next: { revalidate: HOURS_12 }
     });
 
-    const response = await res.json();
-
-    // Id dependabot is not enabled, the response will be an object, not an array.
-    if (response.length === undefined) {
+    if (!res.ok) {
+        console.error('GitHub API returned an error.', res.status, res.statusText);
         return [];
     }
-    const openAlertsBySeverity = response.reduce((acc, alert) => {
-        if (alert.state === 'open') {
-            acc[alert.security_advisory.severity] = acc[alert.security_advisory.severity] ? acc[alert.security_advisory.severity] + 1 : 1;
-        }
-        return acc;
-    }, {});
 
-    return openAlertsBySeverity;
-}, ['getDependabotAlerts'], { revalidate: HOURS_12 });
+    return res.json();
+});
 
-/**
- * Determines if a repository is using Next.js App Router or legacy pages/_app.jsx. Or both.
- * Using unstable_cache because fetch calls are not cached when failing. This is the case when eg _app.jsx is not found.
- * @param {*} repoOwner GitHub username
- * @param {string} repoName repository name
- * @returns Object with two booleans: isRouterPages and isRouterApp
- */
-export const checkAppJsxExistence = unstable_cache(async (repoOwner, repoName) => {
-    const urlPagesApp = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/pages/_app.jsx`;
-    // TODO: Add more possible ways to check for App Router.
-    const urlAppLayout = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/app/layout.jsx`;
-
-    const res = {
-        isRouterPages: false,
-        isRouterApp: false,
-    };
+export async function getIsAppLayoutRepo(username, reponame) {
+    const urlPagesApp = `https://api.github.com/repos/${username}/${reponame}/contents/app/page.jsx`;
+    const urlAppLayout = `https://api.github.com/repos/${username}/${reponame}/contents/app/layout.jsx`;
 
     try {
         const [ isPagesRes, isAppLayoutRes ] = await Promise.all([
@@ -269,16 +220,12 @@ export const checkAppJsxExistence = unstable_cache(async (repoOwner, repoName) =
             }),
         ]);
 
-        if (isPagesRes.status === 200) {
-            res.isRouterPages = true;
-        }
+        const isPages = isPagesRes.status === 200;
+        const isAppLayout = isAppLayoutRes.status === 200;
 
-        if (isAppLayoutRes.status === 200) {
-            res.isRouterApp = true;
-        }
+        return isPages && isAppLayout;
     } catch (error) {
-        console.error(`Error checking _app.jsx existence in ${repoName}: ${error.message}`);
+        console.error('Error fetching repo contents:', error);
+        return false;
     }
-
-    return res;
-}, ['checkAppJsxExistence'], { revalidate: HOURS_1 });
+}

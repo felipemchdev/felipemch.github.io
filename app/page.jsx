@@ -6,7 +6,6 @@ import { ProfileOrganizations } from "./components/orgs";
 import { RecentActivity } from "./components/recent-activity";
 import { getUser } from "./data";
 import { OpenAIStatsWidget } from "./components/openai-stats-widget";
-import { Certificates } from "./components/certificates";
 
 const navigation = [
 	{ name: "Projetos", href: "/projetos" },
@@ -14,29 +13,7 @@ const navigation = [
 	{ name: "Contato", href: "/contato" },
 ];
 
-export default async function Home(props) {
-    const searchParams = await props.searchParams;
-
-    return (
-		<LandingComponent searchParams={searchParams} />
-	)
-}
-
-const UserIcon = async ({ promise }) => {
-	const user = await promise;
-	return (
-		<Image alt='👨‍💻' width={100} height={100} src={user.avatar_url || data.avatarUrl} className="float-right rounded-full mx-4" />
-	);
-};
-
-const UserText = async ({ promise }) => {
-	const user = await promise;
-	return (
-		<p>Olá, eu sou {user.name || data.displayName}{user.bio ? `. ${user.bio}` : ''}</p>
-	);
-};
-
-const LandingComponent = async ({ searchParams: { customUsername } }) => {
+export default async function Home({ searchParams: { customUsername } }) {
 	const username = customUsername || process.env.GITHUB_USERNAME || data.githubUsername;
 	const promise = getUser(username);
 
@@ -90,3 +67,17 @@ const LandingComponent = async ({ searchParams: { customUsername } }) => {
 		</div>
 	);
 }
+
+const UserIcon = async ({ promise }) => {
+	const user = await promise;
+	return (
+		<Image alt='👨‍💻' width={100} height={100} src={user.avatar_url || data.avatarUrl} className="float-right rounded-full mx-4" />
+	);
+};
+
+const UserText = async ({ promise }) => {
+	const user = await promise;
+	return (
+		<p>Olá, eu sou {user.name || data.displayName}{user.bio ? `. ${user.bio}` : ''}</p>
+	);
+};
