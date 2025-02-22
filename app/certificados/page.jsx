@@ -5,10 +5,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card } from "../components/card";
 
-export default async function CertificatesPage(props) {
-    const searchParams = await props.searchParams;
-    const { customUsername } = searchParams;
+// Modifique para usar getServerSideProps em vez de um componente assíncrono
+export async function getServerSideProps(context) {
+    // Aqui você pode acessar os parâmetros da URL diretamente
+    const { customUsername } = context.query;
 
+    // Retorne como props para o componente
+    return {
+        props: {
+            customUsername,
+        },
+    };
+}
+
+export default function CertificatesPage({ customUsername }) {
     return (
         <div className="relative pb-16">
             <Navigation customUsername={customUsername} />
