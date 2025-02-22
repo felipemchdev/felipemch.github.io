@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card } from "../components/card";
 
+<<<<<<< HEAD
 // Usando getServerSideProps para acessar os parâmetros de consulta
 export async function getServerSideProps(context) {
     const { customUsername } = context.query; // Acessando customUsername dos parâmetros de consulta
@@ -17,6 +18,13 @@ export async function getServerSideProps(context) {
 }
 
 export default function CertificatesPage({ customUsername }) {
+=======
+// Modificando para acessar os parâmetros diretamente no componente, sem getServerSideProps
+export default async function CertificatesPage({ searchParams }) {
+    // Acessando customUsername diretamente dos searchParams
+    const { customUsername } = searchParams;
+
+>>>>>>> 5f5ebfe2d7feca5786c0f0949a8b122d18e95c9c
     return (
         <div className="relative pb-16">
             <Navigation customUsername={customUsername} />
