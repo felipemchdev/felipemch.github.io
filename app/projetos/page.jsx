@@ -3,13 +3,8 @@ import { Navigation } from "../components/nav";
 import data from "../../data.json";
 import ProjectsComponent from "./projects";
 
-export default async function ProjectsPage(props) {
-    const searchParams = await props.searchParams;
-
-    const {
-        customUsername
-    } = searchParams;
-
+export default function ProjectsPage({ searchParams }) {
+    const { customUsername } = searchParams;
     const username = customUsername || process.env.GITHUB_USERNAME || data.githubUsername;
 
     return (
@@ -25,7 +20,6 @@ export default async function ProjectsPage(props) {
                         {/* <pre>{JSON.stringify(vercelProjects.projects[1], null, 4)}</pre> */}
                     </p>
                 </div>
-
                 <Suspense fallback={<div className="text-lg text-zinc-500">Carregando...</div>}>
                     <ProjectsComponent username={username} />
                 </Suspense>

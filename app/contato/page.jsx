@@ -11,18 +11,13 @@ import { getUser, getSocialAccounts } from "../data";
 // TODO: make it edge once Turbopack supports it.
 export const runtime = 'nodejs';
 
-export default async function Contacts(props) {
-    const searchParams = await props.searchParams;
-
-    const {
-        customUsername
-    } = searchParams;
-
+export default function Contacts({ searchParams }) {
+    const { customUsername } = searchParams;
     const username = customUsername || process.env.GITHUB_USERNAME || data.githubUsername;
-    // Get both user and socials in parallel.
     const userData = getUser(username);
     const socialsData = getSocialAccounts(username);
-    const [user, githubSocials] = await Promise.all([userData, socialsData]);
+    const [user, githubSocials] = [userData, socialsData];
+
     const email = user.email || data.email;
     const contacts = [];
     
@@ -42,7 +37,6 @@ export default async function Contacts(props) {
         handle: username,
     });
 
-    // Add LinkedIn profile directly
     contacts.push({
         icon: <FaLinkedin size={20} />,
         href: "https://linkedin.com/in/felipemch",
@@ -66,7 +60,7 @@ export default async function Contacts(props) {
 
     return (
         <div className="bg-gradient-to-tl from-zinc-900/0 via-zinc-900 to-zinc-900/0">
-            <Navigation customUsername={customUsername} />
+            <Navigation customUsername={username} />
             <div className="container flex items-center justify-center min-h-screen px-4 mx-auto">
                 <div className="grid w-full grid-cols-1 gap-8 mx-auto mt-32 sm:mt-0 sm:grid-cols-3 lg:gap-16">
                     {contacts.map((s) => {

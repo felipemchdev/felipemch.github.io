@@ -3,17 +3,16 @@ import Image from "next/image";
 import React, { Suspense } from "react";
 import data from "../data.json";
 import { ProfileOrganizations } from "./components/orgs";
-import { RecentActivity } from "./components/recent-activity";
 import { getUser } from "./data";
 import { OpenAIStatsWidget } from "./components/openai-stats-widget";
 
 const navigation = [
 	{ name: "Projetos", href: "/projetos" },
-	{ name: "Certificados", href: "/certificados" },
 	{ name: "Contato", href: "/contato" },
 ];
 
-export default async function Home({ searchParams: { customUsername } }) {
+export default function Home({ searchParams }) {
+	const { customUsername } = searchParams;
 	const username = customUsername || process.env.GITHUB_USERNAME || data.githubUsername;
 	const promise = getUser(username);
 
@@ -48,7 +47,6 @@ export default async function Home({ searchParams: { customUsername } }) {
 						<div className="w-full h-px min-h-28">
 							<UserText promise={promise} />
 							<ProfileOrganizations username={username} />
-							<RecentActivity username={username} />
 						</div>
 					</Suspense>
 				</h2>

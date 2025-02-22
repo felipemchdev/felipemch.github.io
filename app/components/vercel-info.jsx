@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { getNextjsLatestRelease, getRepositoryPackageJson, checkAppJsxExistence } from '../data';
+import { getNextjsLatestRelease, getRepositoryPackageJson } from '../data';
 import Popover from './popover';
 import { RiTailwindCssFill } from "react-icons/ri";
 import { SiReactbootstrap } from 'react-icons/si';
@@ -9,19 +9,8 @@ export const VercelInfo = async ({ info }) => {
 
 	const nextjsLatestRelease = await getNextjsLatestRelease();
 	const pJson = await getRepositoryPackageJson(info.owner.login, info.name);
-	const { isRouterPages, isRouterApp } = await checkAppJsxExistence(info.owner.login, info.name);
 	const nextjsVersion = pJson?.dependencies?.next.replace('^', '').replace('~', '');
 	let labelNext = 'Next.js project';
-
-	if (isRouterPages && isRouterApp) {
-		labelNext = labelNext + ' using both Pages and App';
-	} else if (isRouterPages && !isRouterApp) {
-		labelNext = labelNext + ' using Pages';
-	} else if (!isRouterPages && isRouterApp) {
-		labelNext = labelNext + ' using App Router';
-	} else if (!isRouterPages && !isRouterApp) {
-		labelNext = labelNext + ' using neither Pages nor App Router';
-	}
 
 	let isUsingTurbopack = pJson?.scripts?.dev?.includes('--turbo') || false;
 	const turboIcon = isUsingTurbopack
