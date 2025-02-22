@@ -1,5 +1,6 @@
+"use client"; // Adicione isso no topo do seu arquivo
 import React from "react";
-import { useRouter } from "next/router"; // Importando useRouter
+import { useRouter } from "next/navigation"; // Importando useRouter de next/navigation
 import { Navigation } from "../components/nav";
 import data from "../../data.json"; // Supondo que você ainda queira usar dados locais
 import Image from "next/image";
