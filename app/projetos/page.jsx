@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import { Navigation } from "../components/nav";
 import data from "../../data.json";
 import ProjectsComponent from "./projects";
+import Link from "next/link";
 
 export default function ProjectsPage({ searchParams }) {
     const { customUsername } = searchParams;
@@ -19,6 +20,9 @@ export default function ProjectsPage({ searchParams }) {
                         {customUsername ? `Projetos de ${customUsername}` : data.description}
                         {/* <pre>{JSON.stringify(vercelProjects.projects[1], null, 4)}</pre> */}
                     </p>
+                </div>
+                <div className="flex justify-between mb-8">
+                    <Link href="/" className="btn btn-primary">Voltar para a Página Principal</Link>
                 </div>
                 <Suspense fallback={<div className="text-lg text-zinc-500">Carregando...</div>}>
                     <ProjectsComponent username={username} />

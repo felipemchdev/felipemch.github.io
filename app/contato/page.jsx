@@ -63,6 +63,9 @@ export default function Contacts({ searchParams }) {
             <Navigation customUsername={username} />
             <div className="container flex items-center justify-center min-h-screen px-4 mx-auto">
                 <div className="grid w-full grid-cols-1 gap-8 mx-auto mt-32 sm:mt-0 sm:grid-cols-3 lg:gap-16">
+                    <div className="flex justify-start mb-4">
+                        <Link href="/" className="btn btn-primary">Voltar para a Página Principal</Link>
+                    </div>
                     {contacts.map((s) => {
                         return (
                             <Card key={s.href}>
