@@ -44,7 +44,7 @@ export async function OpenAIStatsWidget() {
 		<div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
 			<div className="flex items-center justify-center sm:justify-start w-full sm:w-auto">
 				<PiOpenAiLogo className="h-5 w-5 mr-2" />
-				<span className="text-sm font-medium">OpenAI Usage</span>
+				<span className="text-sm font-medium">OpenAI Stats</span>
 			</div>
 			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
 				<StatItem value={stats.total_requests} label="Requests" />
