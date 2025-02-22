@@ -1,15 +1,14 @@
 import React from "react";
 import { Navigation } from "../components/nav";
-import data from "../../data.json"; // Supondo que você ainda queira usar dados locais
+import data from "../../data.json"; // Dados locais ou de uma API
 import Image from "next/image";
 import Link from "next/link";
 import { Card } from "../components/card";
 
-// Componente que acessa os parâmetros de consulta diretamente
 export default async function CertificatesPage({ searchParams }) {
     const { customUsername } = searchParams;
 
-    // Se você precisar buscar dados de uma API, você pode usar fetch aqui
+    // Exemplo de busca de dados de uma API
     // const response = await fetch('sua-api-url');
     // const apiData = await response.json();
 
