@@ -2,6 +2,7 @@
   "name": "portfolio",
   "version": "1.5.0",
   "private": false,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbo",
     "build": "npm run setup && next build",
@@ -27,6 +28,6 @@
     "tailwindcss": "^4.0.6"
   },
   "engines": {
-    "node": "22.x"
+    "node": "20.x"
   }
 }
